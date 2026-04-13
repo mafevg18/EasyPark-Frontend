@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
+import { register } from "../services/authService";
 
 function Registro() {
+
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,9 +39,9 @@ function Registro() {
     }
 
     if (name === "documento") {
-      const regex = /^\d{10}$/;
+      const regex = /^\d{8}$|^\d{10}$/;
       if (!regex.test(value))
-        error = "Debe tener exactamente 10 dígitos";
+        error = "Debe tener minimo 8 dígitos y máximo 10 dígitos";
     }
 
     if (name === "password") {
@@ -54,7 +57,6 @@ function Registro() {
       ...prev,
       [name]: error
     }));
-
   };
 
   const handleChange = (e) => {
@@ -67,7 +69,6 @@ function Registro() {
     });
 
     validarCampo(name, value);
-
   };
 
   const getBorder = (name) => {
@@ -77,7 +78,30 @@ function Registro() {
     if (errores[name]) return "border-red-500";
 
     return "border-green-500";
+  };
 
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      await register({
+        nombres: form.nombres,
+        apellidos: form.apellidos,
+        email: form.correo,           
+        telefono: form.telefono,
+        documento: form.documento,
+        tipoDocumento: form.tipoDocumento,
+        username: form.usuario,       
+        rol: form.rol.toLowerCase(),  
+        password: form.password
+      });
+
+      alert("Usuario creado correctamente");
+      navigate("/");
+
+    } catch (error) {
+      alert("Error al registrar");
+    }
   };
 
   return (
@@ -89,9 +113,8 @@ function Registro() {
           Crear cuenta
         </h2>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleRegister}>
 
-          {/* NOMBRES */}
           <input
             name="nombres"
             placeholder="Nombres"
@@ -99,7 +122,6 @@ function Registro() {
             className={`w-full p-3 rounded-lg ${getBorder("nombres")}`}
           />
 
-          {/* APELLIDOS */}
           <input
             name="apellidos"
             placeholder="Apellidos"
@@ -107,7 +129,6 @@ function Registro() {
             className={`w-full p-3 rounded-lg ${getBorder("apellidos")}`}
           />
 
-          {/* TIPO DOCUMENTO */}
           <select
             name="tipoDocumento"
             onChange={handleChange}
@@ -119,7 +140,6 @@ function Registro() {
             <option value="PAS">Pasaporte</option>
           </select>
 
-          {/* DOCUMENTO */}
           <div>
             <input
               name="documento"
@@ -132,7 +152,6 @@ function Registro() {
             )}
           </div>
 
-          {/* TELEFONO */}
           <div>
             <input
               name="telefono"
@@ -145,7 +164,6 @@ function Registro() {
             )}
           </div>
 
-          {/* CORREO */}
           <div>
             <input
               name="correo"
@@ -158,7 +176,6 @@ function Registro() {
             )}
           </div>
 
-          {/* USUARIO */}
           <input
             name="usuario"
             placeholder="Usuario"
@@ -166,7 +183,6 @@ function Registro() {
             className={`w-full p-3 rounded-lg ${getBorder("usuario")}`}
           />
 
-          {/* PASSWORD */}
           <div className="relative">
 
             <input
@@ -190,18 +206,20 @@ function Registro() {
 
           </div>
 
-          {/* ROL */}
           <select
             name="rol"
             onChange={handleChange}
             className="w-full p-3 rounded-lg border"
           >
             <option value="">Tipo de usuario</option>
-            <option value="CONDUCTOR">Conductor</option>
-            <option value="ARRENDATARIO">Arrendatario</option>
+            <option value="conductor">Conductor</option>
+            <option value="arrendatario">Arrendatario</option>
           </select>
 
-          <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"
+          >
             Registrarse
           </button>
 

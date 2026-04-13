@@ -3,10 +3,13 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import Recuperar from "./pages/Recuperar";
+import Resetear from "./pages/Resetear";
 import Dashboard from "./pages/Dashboard";
 import Parqueaderos from "./Pages/Parqueaderos";
-import Reservas  from "./pages/Reservas";
+import Reservas from "./pages/Reservas";
 import Perfil from "./pages/Perfil";
+import Vehiculos from "./pages/Vehiculos";
+ import ReservarParqueadero from "./pages/ReservarParqueadero";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -17,7 +20,8 @@ function Layout() {
   const hideNavbar =
     location.pathname === "/" ||
     location.pathname === "/registro" ||
-    location.pathname === "/recuperar";
+    location.pathname === "/recuperar" ||
+    location.pathname === "/resetear";
 
   return (
     <>
@@ -28,7 +32,7 @@ function Layout() {
         <Route path="/" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperar" element={<Recuperar />} />
-
+        <Route path="/resetear" element={<Resetear />} />
         {/* protegidas */}
         <Route
           path="/dashboard"
@@ -58,12 +62,31 @@ function Layout() {
         />
 
         <Route
+          path="/vehiculos"
+          element={
+            <ProtectedRoute>
+              <Vehiculos />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
           path="/perfil"
           element={
             <ProtectedRoute>
               <Perfil />
             </ProtectedRoute>
           }
+        />
+       
+
+        <Route 
+          path="/reservar/:parkingId"
+          element={
+            <ProtectedRoute>
+              <ReservarParqueadero />
+            </ProtectedRoute>
+          } 
         />
 
       </Routes>

@@ -1,122 +1,148 @@
-import { useState, useEffect } from "react";
-import { MapPin, Calendar, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { getMyReservations, cancelReservation } from "../services/reservationService";
 
 function Reservas() {
-
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    obtenerReservas();
-  }, []);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
-  const obtenerReservas = async () => {
+  const loadData = async () => {
     try {
-
-      const response = await fetch("/api/reservas");
-      const data = await response.json();
-
-      setReservas(data);
-
+      const data = await getMyReservations();
+      setReservas(data || []);
     } catch (error) {
-      console.error("Error obteniendo reservas", error);
+      console.error("Error cargando reservas:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const cancelarReserva = async (id) => {
 
-    const confirmar = window.confirm("¿Seguro que deseas cancelar esta reserva?");
-    if (!confirmar) return;
 
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const handleCancel = async (id) => {
     try {
-
-      await fetch(`/api/reservas/${id}`, {
-        method: "DELETE"
-      });
-
-      obtenerReservas();
-
+      await cancelReservation(id);
+      setReservas((prev) => prev.filter((r) => r.id !== id));
     } catch (error) {
-      console.error("Error cancelando reserva", error);
+      console.error("Error cancelando reserva:", error);
     }
-
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
+  const openCancelModal = (id) => {
+    setSelectedId(id);
+    setShowModal(true);
+  };
 
+  const confirmCancel = async () => {
+    try {
+      await cancelReservation(selectedId);
+
+      setReservas((prev) =>
+        prev.filter((r) => r.id !== selectedId)
+      );
+
+      setShowModal(false);
+      setSelectedId(null);
+    } catch (error) {
+      console.error("Error cancelando:", error);
+    }
+  };
+  return (
+    <>
       <Navbar />
 
-      <div className="p-10">
+      <div className="p-6 max-w-4xl mx-auto mt-6">
+        <h1 className="text-2xl font-bold mb-6">Mis Reservas</h1>
 
-        <div className="max-w-6xl mx-auto">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mb-6 text-blue-600 hover:underline"
+        >
+          ← Atrás
+        </button>
 
-          <h1 className="text-3xl font-bold mb-8">
-            Mis reservas
-          </h1>
-
-          {loading && (
-            <p className="text-gray-500">
-              Cargando reservas...
-            </p>
-          )}
-
-          {!loading && reservas.length === 0 && (
-            <p className="text-gray-500 text-lg">
-              Aún no tienes reservas.
-            </p>
-          )}
-
-          <div className="grid gap-6">
-
-            {reservas.map((reserva) => (
-
+        {loading ? (
+          <p>Cargando reservas...</p>
+        ) : reservas.length === 0 ? (
+          <p>No tienes reservas aún.</p>
+        ) : (
+          <div className="space-y-4">
+            {reservas.map((r) => (
               <div
-                key={reserva.id}
-                className="bg-white p-6 rounded-xl shadow-md flex justify-between items-center"
+                key={r.id}
+                className="border rounded-xl p-4 shadow flex justify-between items-center"
               >
-
                 <div>
+                  <p className="font-semibold">
+                    Parqueadero: {r.address}
+                  </p>
 
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <MapPin size={18} />
-                    {reserva.direccion}
-                  </div>
+                  <p>Inicio: {new Date(r.startTime).toLocaleString()}</p>
+                  <p>Fin: {new Date(r.endTime).toLocaleString()}</p>
 
-                  <div className="flex items-center gap-2 mt-2 text-gray-600">
-                    <Calendar size={18} />
-                    {reserva.fecha}
-                  </div>
+                  <p className="text-green-600 font-bold">
+                    ${r.totalPrice}
+                  </p>
 
-                  <div className="flex items-center gap-2 mt-2 text-gray-600">
-                    <Clock size={18} />
-                    {reserva.horaInicio} - {reserva.horaFin}
-                  </div>
-
+                  <p>Estado: {r.status}</p>
                 </div>
 
                 <button
-                  onClick={() => cancelarReserva(reserva.id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                  onClick={() => openCancelModal(r.id)}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
                 >
                   Cancelar
                 </button>
-
               </div>
-
             ))}
-
           </div>
-
-        </div>
-
+        )}
       </div>
 
-    </div>
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl shadow-2xl w-80 border">
+
+            <h2 className="text-lg font-bold mb-4">
+              ¿Seguro que deseas cancelar esta reserva?
+            </h2>
+
+
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                onClick={confirmCancel}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+              >
+                Aceptar
+              </button>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedId(null);
+                }}
+                className="px-4 py-2 bg-gray-300 rounded-lg"
+              >
+                Cancelar
+              </button>
+
+
+
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
-
 export default Reservas;

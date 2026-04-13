@@ -1,24 +1,17 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
+import { login } from "../services/authService"; 
 
 function Login() {
 
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    localStorage.setItem("token", "usuario_logueado");
-
-    navigate("/dashboard");
-  };
-
-  const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const validarPassword = (value) => {
-
     const regex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.#]).{8,}$/;
 
@@ -31,6 +24,22 @@ function Login() {
     }
   };
 
+  const handleLogin = async (e) => {
+    e.preventDefault(); 
+    try {
+      const data = await login(username, password);
+
+      if (data.user.rol === "conductor") {
+        navigate("/dashboard");
+      } else {
+        navigate("/dashboard-owner");
+      }
+
+    } catch (error) {
+      alert("Credenciales incorrectas");
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center flex items-center justify-center"
@@ -40,10 +49,8 @@ function Login() {
       }}
     >
 
-      {/* overlay oscuro */}
       <div className="absolute inset-0 bg-black/50"></div>
 
-      {/* card login */}
       <div className="relative bg-white p-10 rounded-2xl shadow-2xl w-96">
 
         <h2 className="text-3xl font-bold text-center mb-6">
@@ -53,8 +60,10 @@ function Login() {
         <form className="space-y-4" onSubmit={handleLogin}>
 
           <input
-            type="email"
-            placeholder="Correo electrónico"
+            type="text"
+            placeholder="Usuario"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             className="w-full border p-3 rounded-lg"
           />
 
@@ -68,8 +77,9 @@ function Login() {
                 setPassword(e.target.value);
                 validarPassword(e.target.value);
               }}
-              className={`w-full p-3 rounded-lg border ${error ? "border-red-500" : "border-green-500"
-                }`}
+              className={`w-full p-3 rounded-lg border ${
+                error ? "border-red-500" : "border-green-500"
+              }`}
             />
 
             <span
@@ -87,7 +97,7 @@ function Login() {
             </p>
           )}
 
-          <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
+          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
             Ingresar
           </button>
 
