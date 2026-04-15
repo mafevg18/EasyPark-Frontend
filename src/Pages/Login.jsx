@@ -35,6 +35,12 @@ function Login() {
         navigate("/dashboard-owner");
       }
 
+      if (data.user.rol === "conductor") {
+        navigate("/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
+
     } catch (error) {
       alert("Credenciales incorrectas");
     }

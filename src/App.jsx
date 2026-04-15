@@ -9,9 +9,11 @@ import Parqueaderos from "./Pages/Parqueaderos";
 import Reservas from "./pages/Reservas";
 import Perfil from "./pages/Perfil";
 import Vehiculos from "./pages/Vehiculos";
- import ReservarParqueadero from "./pages/ReservarParqueadero";
+import ReservarParqueadero from "./pages/ReservarParqueadero";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import CrearParqueadero from "./pages/CrearParqueadero";
+import MisParqueaderos from "./pages/MisParqueaderos";
 
 function Layout() {
 
@@ -78,15 +80,32 @@ function Layout() {
             </ProtectedRoute>
           }
         />
-       
 
-        <Route 
+
+        <Route
           path="/reservar/:parkingId"
           element={
             <ProtectedRoute>
               <ReservarParqueadero />
             </ProtectedRoute>
-          } 
+          }
+        />
+
+        <Route
+          path="/crear-parqueadero"
+          element={
+            <ProtectedRoute>
+              <CrearParqueadero />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mis-parqueaderos"
+          element={
+            <ProtectedRoute>
+              <MisParqueaderos />
+            </ProtectedRoute>
+          }
         />
 
       </Routes>

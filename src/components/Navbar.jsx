@@ -38,7 +38,7 @@ function Navbar() {
 
         <div
           onClick={() => setOpen(!open)}
-          className="w-10 h-10 bg-white text-blue-600 rounded-full flex items-center justify-center font-bold cursor-pointer"
+          className="w-10 h-10 bg-gray-200 text-blue-600 rounded-full flex items-center justify-center font-bold cursor-pointer"
         >
           {inicial}
         </div>

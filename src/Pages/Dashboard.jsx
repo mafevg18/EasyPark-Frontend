@@ -3,6 +3,7 @@ import { MapPin, Calendar, User, Car } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getMyReservations } from "../services/reservationService";
 import { getMyVehicles } from "../services/vehicleService";
+import { getMyParkings } from "../services/parkingService";
 
 function Dashboard() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -10,6 +11,8 @@ function Dashboard() {
     const rol = user.rol;
     const [reservas, setReservas] = useState([]);
     const navigate = useNavigate();
+    const [totalParkings, setTotalParkings] = useState(0);
+    const [activeParkings, setActiveParkings] = useState(0);
 
     useEffect(() => {
         const loadReservas = async () => {
@@ -22,6 +25,24 @@ function Dashboard() {
         };
 
         loadReservas();
+    }, []);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const parkings = await getMyParkings();
+
+                setTotalParkings(parkings.length);
+
+                const activos = parkings.filter(p => p.isActive).length;
+                setActiveParkings(activos);
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        loadData();
     }, []);
 
     const [stats, setStats] = useState({
@@ -94,18 +115,19 @@ function Dashboard() {
 
             </div>
 
-            <div className="max-w-7xl mx-auto px-6 mt-6">
-                <h1 className="text-4xl font-bold text-gray-800">
-                    Bienvenido <span>{usuario}</span> 😄
-                </h1>
 
-                <p className="text-gray-500 mt-2">
-                    Encuentra parqueaderos, gestiona tus reservas y administra tu cuenta.
-                </p>
-            </div>
 
             {rol === "conductor" && (
                 <>
+                    <div className="max-w-7xl mx-auto px-6 mt-6">
+                        <h1 className="text-4xl font-bold text-gray-800">
+                            Bienvenido <span>{usuario}</span> 😄
+                        </h1>
+
+                        <p className="text-gray-500 mt-2">
+                            Encuentra parqueaderos, gestiona tus reservas y administra tu cuenta.
+                        </p>
+                    </div>
                     <div className="max-w-7xl mx-auto px-6 mt-10 grid md:grid-cols-3 gap-6">
 
                         <div className="bg-white p-6 rounded-2xl shadow-md">
@@ -196,8 +218,8 @@ function Dashboard() {
 
                                             <span
                                                 className={`text-sm font-bold ${r.status === "Active"
-                                                        ? "text-green-600"
-                                                        : "text-red-500"
+                                                    ? "text-green-600"
+                                                    : "text-red-500"
                                                     }`}
                                             >
                                                 {r.status}
@@ -209,6 +231,85 @@ function Dashboard() {
 
                         </div>
                     </div>
+                </>
+            )}
+
+            {rol === "arrendatario" && (
+                <>
+                    <div className="max-w-7xl mx-auto px-6 mt-6">
+                        <h1 className="text-4xl font-bold text-gray-800">
+                            Bienvenido <span>{usuario}</span> 😄
+                        </h1>
+
+                        <p className="text-gray-500 mt-2">
+                            Publica parqueaderos, gestiona tus espacios y administra tu cuenta.
+                        </p>
+                    </div>
+                    <div className="max-w-7xl mx-auto px-6 mt-10 grid md:grid-cols-3 gap-6">
+
+                        <div className="bg-white p-6 rounded-2xl shadow-md">
+                            <p className="text-gray-500">Mis parqueaderos</p>
+                            <h2 className="text-3xl font-bold text-blue-600">
+                                {totalParkings}
+                            </h2>
+                        </div>
+
+                        <div className="bg-white p-6 rounded-2xl shadow-md">
+                            <p className="text-gray-500">Parqueaderos publicados</p>
+                            <h2 className="text-3xl font-bold text-green-600">
+                                {activeParkings}
+                            </h2>
+                        </div>
+
+
+
+                    </div>
+
+                    {/* ACCIONES */}
+                    <div className="max-w-7xl mx-auto px-6 mt-12 grid md:grid-cols-3 gap-8">
+
+                        <Link
+                            to="/mis-parqueaderos"
+                            className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1"
+                        >
+                            <MapPin size={42} className="text-blue-600 mb-4" />
+
+                            <h2 className="text-xl font-bold">
+                                Mis parqueaderos
+                            </h2>
+
+                            <p className="text-gray-500 mt-2">
+                                Administra tus espacios publicados.
+                            </p>
+                        </Link>
+
+                        <Link
+                            to="/crear-parqueadero"
+                            className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1"
+                        >
+                            <MapPin size={42} className="text-blue-600 mb-4" />
+
+                            <h2 className="text-xl font-bold">
+                                Publicar parqueadero
+                            </h2>
+
+                            <p className="text-gray-500 mt-2">
+                                Agrega un nuevo espacio disponible.
+                            </p>
+                        </Link>
+
+
+                        <Link to="/perfil" className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1">
+                            <User size={42} className="text-blue-600 mb-4" />
+                            <h2 className="text-xl font-bold">Mi perfil</h2>
+                            <p className="text-gray-500 mt-2">
+                                Edita tu información personal.
+                            </p>
+                        </Link>
+
+                    </div>
+
+
                 </>
             )}
         </div>
