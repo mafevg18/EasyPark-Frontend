@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/authService";
+import toast from "react-hot-toast";
+
 
 function Resetear() {
 
@@ -21,12 +23,12 @@ function Resetear() {
         newPassword: password
       });
 
-      alert("Contraseña actualizada correctamente");
+      toast.success("Contraseña actualizada correctamente");
 
       navigate("/"); 
 
     } catch (error) {
-      alert("Error al cambiar contraseña");
+      toast.error("Error al cambiar contraseña");
     }
   };
 

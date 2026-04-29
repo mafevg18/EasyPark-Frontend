@@ -3,6 +3,8 @@ import { getParkings } from "../services/parkingService";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { createReservation } from "../services/reservationService";
+import toast from "react-hot-toast";
+import Map from "../components/Map";
 
 function Parqueaderos() {
 
@@ -43,9 +45,24 @@ function Parqueaderos() {
       const finalQuery = params.toString() ? `?${params.toString()}` : "";
 
       const data = await getParkings(finalQuery);
+      const parkingsWithCoords = await Promise.all(
+        data.map(async (p, index) => {
+          const coords = await getCoords(`${p.address}, ${p.neighborhood}, Bogotá, Colombia`);
 
+          if (!coords) return p;
 
-      setParkings(data);
+          const offset = 0.0015;
+
+          const angle = (index * 45) * (Math.PI / 180); // en diferentes direcciones
+
+          return {
+            ...p,
+            lat: coords.lat + offset * Math.cos(angle),
+            lng: coords.lng + offset * Math.sin(angle),
+          };
+        })
+      );
+      setParkings(parkingsWithCoords);
     } catch (e) {
       setParkings([]);
     } finally {
@@ -64,7 +81,7 @@ function Parqueaderos() {
       const endTime = prompt("Hora fin (HH:mm)");
 
       if (!startTime || !endTime) {
-        alert("Debes ingresar las horas");
+        toast.error("Debes ingresar las horas");
         return;
       }
 
@@ -80,13 +97,32 @@ function Parqueaderos() {
 
       await createReservation(payload);
 
-      alert("Reserva creada con éxito");
+      toast.success("Reserva creada con éxito");
     } catch (error) {
       console.error(error);
-      alert("Error al crear reserva");
+      toast.error("Error al crear reserva");
     }
   };
 
+  const getCoords = async (address) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+      );
+      const data = await res.json();
+
+      if (data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+        };
+      }
+    } catch (error) {
+      console.error("Error obteniendo coordenadas", error);
+    }
+
+    return null;
+  };
   return (
     <>
       <Navbar />
@@ -137,52 +173,61 @@ function Parqueaderos() {
             </button>
 
           </div>
-
           {loading ? (
             <p>Cargando...</p>
           ) : parkings.length === 0 ? (
             <p>No hay parqueaderos disponibles.</p>
           ) : (
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-6">
 
-              {parkings.map((p) => (
-                <div
-                  key={p.id}
-                  className="bg-white p-5 rounded-xl shadow-md"
-                >
+              {/* 🗺️ MAPA */}
+              <div>
+                <h2 className="text-lg font-semibold mb-2">
+                  Ubicación
+                </h2>
+                <Map parkings={parkings} />
+              </div>
 
-                  <p className="text-sm text-gray-500">
-                    {p.neighborhood}
-                  </p>
-
-                  <h3 className="text-lg font-bold">
-                    {p.address}
-                  </h3>
-
-                  <p className="text-sm text-gray-600">
-                    {p.isCovered ? "Cubierto" : "Descubierto"}
-                  </p>
-
-                  <p className="font-semibold mt-2">
-                    ${p.pricePerHour} / hora
-                  </p>
-
-                  <p className="text-sm mt-1 text-green-600">
-                    Disponible
-                  </p>
-
-                  <button
-                    className="mt-3 w-full py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
-                    onClick={() => navigate(`/reservar/${p.id}`)}
+              {/* 📋 LISTA */}
+              <div className="space-y-4 overflow-y-auto max-h-[500px] pr-2">
+                {parkings.map((p) => (
+                  <div
+                    key={p.id}
+                    className="bg-white p-5 rounded-xl shadow-md hover:shadow-lg transition"
                   >
-                    Reservar
-                  </button>
+                    <p className="text-sm text-gray-500">
+                      {p.neighborhood}
+                    </p>
 
-                </div>
-              ))}
+                    <h3 className="text-lg font-bold">
+                      {p.address}
+                    </h3>
+
+                    <p className="text-sm text-gray-600">
+                      {p.isCovered ? "Cubierto" : "Descubierto"}
+                    </p>
+
+                    <p className="font-semibold mt-2">
+                      ${p.pricePerHour} / hora
+                    </p>
+
+                    <p className="text-sm mt-1 text-green-600">
+                      Disponible
+                    </p>
+
+                    <button
+                      className="mt-3 w-full py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
+                      onClick={() => navigate(`/reservar/${p.id}`)}
+                    >
+                      Reservar
+                    </button>
+                  </div>
+                ))}
+              </div>
 
             </div>
           )}
+
         </div>
 
       </div>

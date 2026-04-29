@@ -1,5 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import Navbar from "../components/Navbar";
+import toast from "react-hot-toast";
+
 import { createReservation } from "../services/reservationService";
 
 function ReservarParqueadero() {
@@ -28,7 +31,7 @@ function ReservarParqueadero() {
     };
 
     setReservationData(payload);
-    setShowPayment(true); 
+    setShowPayment(true);
   };
 
   const handlePayment = async () => {
@@ -37,7 +40,7 @@ function ReservarParqueadero() {
 
       await new Promise((res) => setTimeout(res, 1500));
 
-      alert("Pago realizado con éxito!");
+      toast.success("Pago realizado con éxito!");
 
       setShowPayment(false);
       setPaymentMethod("");
@@ -45,7 +48,7 @@ function ReservarParqueadero() {
       navigate("/reservas");
     } catch (error) {
       console.error(error);
-      alert("Error al procesar el pago");
+      toast.error("Error al procesar el pago");
     } finally {
       setLoading(false);
     }
@@ -53,6 +56,7 @@ function ReservarParqueadero() {
 
   return (
     <>
+      <Navbar />
       <div className="min-h-screen bg-gray-100 p-10 pt-24">
         <div className="max-w-xl mx-auto bg-white p-6 rounded-xl shadow">
 
@@ -113,24 +117,22 @@ function ReservarParqueadero() {
 
               <button
                 onClick={() => setPaymentMethod("card")}
-                className={`w-full p-3 rounded-lg border ${
-                  paymentMethod === "card"
+                className={`w-full p-3 rounded-lg border ${paymentMethod === "card"
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-300"
-                }`}
+                  }`}
               >
                 Tarjeta
               </button>
 
               <button
                 onClick={() => setPaymentMethod("cash")}
-                className={`w-full p-3 rounded-lg border ${
-                  paymentMethod === "cash"
+                className={`w-full p-3 rounded-lg border ${paymentMethod === "cash"
                     ? "border-blue-500 bg-blue-50"
                     : "border-gray-300"
-                }`}
+                  }`}
               >
-                 PSE
+                PSE
               </button>
 
             </div>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { createParking } from "../services/parkingService";
+import toast from "react-hot-toast";
+
 
 function CrearParqueadero() {
     const navigate = useNavigate();
@@ -16,7 +18,7 @@ function CrearParqueadero() {
     const handleSubmit = async () => {
         try {
             if (!address || !neighborhood || !price) {
-                alert("Todos los campos son obligatorios");
+                toast.error("Todos los campos son obligatorios");
                 return;
             }
 
@@ -31,12 +33,12 @@ function CrearParqueadero() {
 
             await createParking(data);
 
-            alert("Parqueadero creado con éxito 🚗");
+            toast.success("Parqueadero creado con éxito!");
 
             navigate("/mis-parqueaderos");
 
         } catch (error) {
-            alert("Error creando parqueadero");
+            toast.error("Ocurrió un error creando parqueadero");
         } finally {
             setLoading(false);
         }

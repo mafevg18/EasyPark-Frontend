@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout";
 import { register } from "../services/authService";
+import toast from "react-hot-toast";
 
 function Registro() {
 
@@ -96,11 +97,11 @@ function Registro() {
         password: form.password
       });
 
-      alert("Usuario creado correctamente");
+      toast.success("Usuario creado correctamente");
       navigate("/");
 
     } catch (error) {
-      alert("Error al registrar");
+      toast.error("Error al registrar");
     }
   };
 

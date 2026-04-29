@@ -14,6 +14,7 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CrearParqueadero from "./pages/CrearParqueadero";
 import MisParqueaderos from "./pages/MisParqueaderos";
+import { Toaster } from "react-hot-toast";
 
 function Layout() {
 
@@ -27,7 +28,7 @@ function Layout() {
 
   return (
     <>
-
+      <Toaster position="top-right" />
       <Routes>
 
         {/* públicas */}

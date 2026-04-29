@@ -2,6 +2,8 @@ import { useState } from "react";
 import { createVehicle } from "../services/vehicleService";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 
 function Vehiculos() {
 
@@ -26,7 +28,7 @@ function Vehiculos() {
     e.preventDefault();
 
     if (!form.plate || !form.brand || !form.model || !form.color) {
-      alert("Todos los campos son obligatorios");
+      toast.error("Todos los campos son obligatorios");
       return;
     }
 
@@ -35,7 +37,7 @@ function Vehiculos() {
 
       await createVehicle(form);
 
-      alert("Vehículo creado correctamente 🚗");
+      toast.success("Vehículo creado correctamente!");
 
       setForm({
         plate: "",
@@ -45,7 +47,7 @@ function Vehiculos() {
       });
 
     } catch (error) {
-      alert("Error al crear vehículo");
+      toast.error("Error al crear vehículo");
     } finally {
       setLoading(false);
     }

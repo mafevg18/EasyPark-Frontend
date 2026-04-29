@@ -189,48 +189,6 @@ function Dashboard() {
 
                     </div>
 
-                    <div className="max-w-7xl mx-auto px-6 mt-16 mb-16">
-                        <div className="bg-white p-8 rounded-2xl shadow">
-
-                            <h2 className="text-xl font-bold mb-4">
-                                Actividad reciente
-                            </h2>
-
-                            {reservas.length === 0 ? (
-                                <p className="text-gray-500">
-                                    No tienes actividad reciente.
-                                </p>
-                            ) : (
-                                <div className="space-y-3">
-                                    {reservas.slice(0, 5).map((r) => (
-                                        <div
-                                            key={r.id}
-                                            className="border-b pb-2 flex justify-between"
-                                        >
-                                            <div>
-                                                <p className="font-semibold text-gray-700">
-                                                    {r.address}
-                                                </p>
-                                                <p className="text-sm text-gray-500">
-                                                    {new Date(r.startTime).toLocaleString()}
-                                                </p>
-                                            </div>
-
-                                            <span
-                                                className={`text-sm font-bold ${r.status === "Active"
-                                                    ? "text-green-600"
-                                                    : "text-red-500"
-                                                    }`}
-                                            >
-                                                {r.status}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-
-                        </div>
-                    </div>
                 </>
             )}
 

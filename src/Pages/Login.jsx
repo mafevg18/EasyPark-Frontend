@@ -1,6 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
-import { login } from "../services/authService"; 
+import { login } from "../services/authService";
+import toast from "react-hot-toast";
 
 function Login() {
 
@@ -25,7 +26,7 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     try {
       const data = await login(username, password);
 
@@ -42,7 +43,12 @@ function Login() {
       }
 
     } catch (error) {
-      alert("Credenciales incorrectas");
+      toast.error("Credenciales ingresadas incorrectas", {
+        style: {
+          borderRadius: "10px",
+          color: "#000000",
+        },
+      });
     }
   };
 
@@ -83,9 +89,8 @@ function Login() {
                 setPassword(e.target.value);
                 validarPassword(e.target.value);
               }}
-              className={`w-full p-3 rounded-lg border ${
-                error ? "border-red-500" : "border-green-500"
-              }`}
+              className={`w-full p-3 rounded-lg border ${error ? "border-red-500" : "border-green-500"
+                }`}
             />
 
             <span
