@@ -37,8 +37,9 @@ function ReservarParqueadero() {
   const handlePayment = async () => {
     try {
       setLoading(true);
-
       await new Promise((res) => setTimeout(res, 1500));
+      await createReservation(reservationData); 
+
 
       toast.success("Pago realizado con éxito!");
 
